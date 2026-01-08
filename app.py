@@ -327,8 +327,8 @@ def round_team_df() -> pd.DataFrame:
     of_mask = sub["slot"].isin(["lf", "cf", "rf", "of"])
     if of_mask.any():
         sub.loc[of_mask, "slot"] = "of"
-
-    sub = sub[sub["slot"] != "util"]
+    
+    sub.loc[sub["slot"].isin(["dh", "util"]), "slot"] = "util"
 
     sub["war"] = pd.to_numeric(sub["war"], errors="coerce")
     sub = sub.dropna(subset=["war", "player", "slot"])
