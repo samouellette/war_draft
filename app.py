@@ -18,16 +18,53 @@ LOGO_DIR = BASE_DIR / "logos"
 st.set_page_config(page_title="WAR Draft", layout="wide")
 
 # ----------------------------
-# Rules modal state (FIXED)
+# Rules dialog state (native Streamlit dialog)
 # ----------------------------
 if "show_rules" not in st.session_state:
     st.session_state.show_rules = False
 
+
 def open_rules():
     st.session_state.show_rules = True
 
-def close_rules():
-    st.session_state.show_rules = False
+
+@st.dialog("How to Play")
+def rules_dialog():
+    st.markdown(
+        """
+### 
+-Two teams draft MLB players since 1980 from the randomly selected team above. Snake draft order.
+
+-The goal is to draft a player with the highest SINGLE SEASON WAR from that team.
+
+-Players only appear in the positional dropdown box if they played the most games at that position for that team in a single season.
+
+-Players that played a different position in a different season with the same team will have a different WAR at that position.
+
+-For example: if the team is the Phillies, putting Bryce Harper in an OF slot will produce a different WAR than the 1B slot.
+
+-This means there are 4 different Harpers. (Nats OF, Phillies OF, Phillies 1B, and Phillies DH)
+
+-If Team A chooses Phillies OF Bryce Harper, Team B could still choose 1B or DH Harper.
+
+-Team A would still be allowed to take Nats OF Harper later in the game if the Nats are selected.
+
+**IMPORTANT: UTILITY SLOT
+
+-Any position can be used in utility slot, but DHs are only eligible for the utility slot.
+
+-The utility slot automatically chooses the highest WAR that player had in a season with that team, regardless of position.
+
+-If Team A chooses Phillies OF Bryce Harper, Team B can still put Phillies Harper in their utility slot but it will choose the highest non OF WAR season.
+
+-HAVE FUN AND EXPAND YOUR BALL KNOWLEDGE
+        """
+    )
+
+    if st.button("Close", key="rules_close_btn"):
+        st.session_state.show_rules = False
+        st.rerun()
+
 
 # ----------------------------
 # GLOBAL CSS (background + spacing + widgets)
@@ -81,52 +118,6 @@ st.markdown(
           font-weight: 600;
           opacity: 0.95;
         }
-
-        /* Make the Rules button look like a big link */
-        div[data-testid="stButton"] button.rules-link{
-          background: none !important;
-          border: none !important;
-          padding: 0 !important;
-          color: #2b6cb0 !important;
-          text-decoration: underline !important;
-          font-size: 28px !important;
-          font-weight: 700 !important;
-          box-shadow: none !important;
-        }
-        div[data-testid="stButton"] button.rules-link:hover{
-          opacity: 0.85;
-        }
-
-        /* Modal overlay + panel */
-        .rules-overlay{
-          position: fixed;
-          top: 0; left: 0;
-          width: 100vw; height: 100vh;
-          background: rgba(0,0,0,0.55);
-          z-index: 999999;
-          display: flex;
-          align-items: flex-start;
-          justify-content: center;
-          padding-top: 5vh;
-        }
-        .rules-panel{
-          background: #0b1a3a;
-          color: white;
-          width: min(1100px, 92vw);
-          border-radius: 22px;
-          padding: 42px 48px 34px 48px;
-          box-shadow: 0 18px 60px rgba(0,0,0,0.35);
-        }
-        .rules-title{
-          font-size: 56px;
-          font-weight: 800;
-          margin: 0 0 18px 0;
-        }
-        .rules-text{
-          font-size: 28px;
-          line-height: 1.55;
-          margin: 0 0 16px 0;
-        }
         </style>
         """
     ),
@@ -134,81 +125,13 @@ st.markdown(
 )
 
 # ----------------------------
-# Title + Rules link (under title)
+# Title + Rules button
 # ----------------------------
 st.markdown('<h1 style="margin-bottom: 0.25rem;">MLB WAR Draft Faceoff</h1>', unsafe_allow_html=True)
 
-st.button("Rules", on_click=open_rules, key="rules_open_btn", type="secondary", use_container_width=False)
-# Apply the "link" styling class to the button via a tiny CSS hook:
-st.markdown(
-    """
-    <script>
-      const btn = window.parent.document.querySelector('button[kind="secondary"][data-testid="baseButton-secondary"]');
-      if (btn && btn.innerText.trim() === "Rules") { btn.classList.add("rules-link"); }
-    </script>
-    """,
-    unsafe_allow_html=True
-)
-
-# ----------------------------
-# Modal (FIXED: close button is inside Streamlit, always clickable)
-# ----------------------------
+st.button("Rules", on_click=open_rules, key="rules_open_btn", use_container_width=False)
 if st.session_state.show_rules:
-    st.markdown(
-        """
-        <div class="rules-overlay">
-          <div class="rules-panel">
-            <div class="rules-title">How to Play</div>
-            <p class="rules-text">
-            **REFRESH BROWSER TO CLOSE RULES BLOCK**
-            </p>
-            <p class="rules-text">
-              -Two teams draft MLB players since 1980 from the randomly selected team above. Snake draft order.
-            </p>
-            <p class="rules-text">
-              -The goal is to draft a player with the highest SINGLE-SEASON WAR from that team
-            </p>
-            <p class="rules-text">
-              -Players only appear in the positional dropdown box if they played the most games at that position for that team in a single season.
-            </p>
-            <p class="rules-text">
-              -Players that played a different position in a different season with the same team will have a different WAR at that position.
-            </p>
-            <p class="rules-text">
-              -For example: if the team is the Phillies, putting Bryce Harper in an OF slot will produce a different WAR than the 1B slot.
-            </p>
-            <p class="rules-text">
-              -This means there are 4 different Harpers. (Nats OF, Phillies OF, Phillies 1B, and Phillies DH)
-            </p>
-            <p class="rules-text">
-              -If team A chooses Phillies OF Bryce Harper, Team B could still choose 1B/DH Harper.
-            </p>
-            <p class="rules-text">
-              -Team A would still be allowed to take Nats OF Harper later in the game if the Nats are selected.
-            </p>
-            <p class="rules-text">
-              -IMPORTANT: UTILITY SLOT
-            </p>
-            <p class="rules-text">
-              -Any postiiton can be used in utility slot, but DH's are only eligible for the utility slot.
-            </p>
-            <p class="rules-text">
-              -The utility slot automacailly chooses the highest WAR that player had in a season with that team, regardless of position.
-            </p>
-            <p class="rules-text">
-              -If Team A chooses Phillies OF Bryce Harper (phillies Harper with highest WAR), team B can still put Phillies Harper in their utility slot but it will choose the highest non-OF WAR season.
-            </p>
-            <p class="rules-text">
-              -HAVE FUN AND EXPAND YOUR BALL KNOWLEDGE
-            </p>
-          </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    # This renders ABOVE the page content in Streamlit's layout, so it's clickable.
-    # Put it immediately after the modal HTML so it sits at the top of the page flow.
-    st.button("Close rules", on_click=close_rules, key="rules_close_btn")
+    rules_dialog()
 
 # ----------------------------
 # Data
@@ -262,19 +185,23 @@ TEAM_COLORS = {
     "rockies": "#33006F",
 }
 
+
 def team_color(team_name: str) -> str:
     t = (team_name or "").strip().lower()
     return TEAM_COLORS.get(t, "#1F6F43")
+
 
 def slot_label(slot: str) -> str:
     if slot in ["of1", "of2", "of3"]:
         return "OF"
     return slot.upper()
 
+
 def ui_slot_to_data_slot(ui_slot: str) -> str:
     if ui_slot in ["of1", "of2", "of3"]:
         return "of"
     return ui_slot
+
 
 def roster_total(roster: dict) -> float:
     total = 0.0
@@ -282,6 +209,7 @@ def roster_total(roster: dict) -> float:
         if v is not None:
             total += float(v["war"])
     return total
+
 
 def init_game_state():
     st.session_state.roster_a = {slot: None for slot in ROSTER_SLOTS}
@@ -297,11 +225,13 @@ def init_game_state():
     st.session_state.round_used_player_slots = {}
     st.session_state.message = ""
 
+
 def current_picker() -> str:
     round_index = st.session_state.round_index
     first = "A" if (round_index % 2 == 0) else "B"
     second = "B" if first == "A" else "A"
     return first if st.session_state.pick_in_round == 0 else second
+
 
 def advance_pick():
     st.session_state.pick_in_round += 1
@@ -317,6 +247,7 @@ def advance_pick():
         else:
             st.session_state.round_team = None
 
+
 def round_team_df() -> pd.DataFrame:
     team = st.session_state.round_team
     if team is None:
@@ -324,36 +255,77 @@ def round_team_df() -> pd.DataFrame:
 
     sub = df[df["team"] == team].copy()
 
+    # normalize outfield
     of_mask = sub["slot"].isin(["lf", "cf", "rf", "of"])
     if of_mask.any():
         sub.loc[of_mask, "slot"] = "of"
-    
-    sub.loc[sub["slot"].isin(["dh", "util"]), "slot"] = "util"
+
+    # normalize DH to UTIL so DH-only players show up (Ohtani)
+        # normalize DH labels (keep as "dh" internally)
+    dh_mask = sub["slot"].isin(["dh", "d h", "designated_hitter"])
+    if dh_mask.any():
+        sub.loc[dh_mask, "slot"] = "dh"
+
+    # If "util" exists in the CSV, keep it ONLY for DH-only players.
+    # (DH-only players typically have no non-util slots, so we treat their util as "dh".)
+    non_util_players = set(sub.loc[sub["slot"] != "util", "player"].unique())
+    util_mask = (sub["slot"] == "util") & (~sub["player"].isin(non_util_players))
+    if util_mask.any():
+        sub.loc[util_mask, "slot"] = "dh"
+
+    # Now drop remaining util rows (these are precomputed util duplicates for players who have real positions)
+    sub = sub[sub["slot"] != "util"]
+
+
 
     sub["war"] = pd.to_numeric(sub["war"], errors="coerce")
     sub = sub.dropna(subset=["war", "player", "slot"])
     return sub
 
+
 def player_slots_used_in_round(player: str) -> set:
-    used = st.session_state.round_used_player_slots.get(player, set())
-    return set(used)
+    used = set(st.session_state.round_used_player_slots.get(player, set()))
+
+    # Backup: also derive used slots from what is already drafted
+    # for the current round team, across BOTH rosters.
+    round_team = st.session_state.round_team
+    for roster_key in ["roster_a", "roster_b"]:
+        roster = st.session_state.get(roster_key, {})
+        for v in roster.values():
+            if v is None:
+                continue
+            if v.get("team") != round_team:
+                continue
+            if v.get("player") != player:
+                continue
+            src = v.get("source_slot")
+            if src:
+                used.add(str(src).strip().lower())
+
+    return used
+
+
 
 def mark_used(player: str, data_slot: str):
     if player not in st.session_state.round_used_player_slots:
         st.session_state.round_used_player_slots[player] = set()
     st.session_state.round_used_player_slots[player].add(data_slot)
 
-def roster_taken_players(roster: dict) -> set:
-    return {v["player"] for v in roster.values() if v is not None}
+
+def roster_taken_keys(roster: dict) -> set:
+    return {(v["player"], v.get("team")) for v in roster.values() if v is not None}
+
 
 def options_for_slot(team_df: pd.DataFrame, ui_slot: str, roster: dict) -> pd.DataFrame:
     data_slot = ui_slot_to_data_slot(ui_slot)
-    taken_this_roster = roster_taken_players(roster)
+    taken_keys = roster_taken_keys(roster)
 
     if ui_slot == "util":
         allowed = team_df.copy()
-        if taken_this_roster:
-            allowed = allowed[~allowed["player"].isin(taken_this_roster)]
+        allowed = allowed[allowed["slot"] != "util"]
+
+        if taken_keys:
+            allowed = allowed[~allowed.apply(lambda r: (r["player"], r["team"]) in taken_keys, axis=1)]
 
         def best_remaining_for_player(g: pd.DataFrame) -> float:
             used_slots = player_slots_used_in_round(g.name)
@@ -370,8 +342,8 @@ def options_for_slot(team_df: pd.DataFrame, ui_slot: str, roster: dict) -> pd.Da
         return out
 
     pool = team_df[team_df["slot"] == data_slot].copy()
-    if taken_this_roster:
-        pool = pool[~pool["player"].isin(taken_this_roster)]
+    if taken_keys:
+        pool = pool[~pool.apply(lambda r: (r["player"], r["team"]) in taken_keys, axis=1)]
 
     used_block = []
     for p, used_slots in st.session_state.round_used_player_slots.items():
@@ -386,6 +358,7 @@ def options_for_slot(team_df: pd.DataFrame, ui_slot: str, roster: dict) -> pd.Da
     best["slot"] = data_slot
     return best.sort_values("war", ascending=False)
 
+
 def apply_pick(team_letter: str, ui_slot: str, player_name: str):
     roster_key = "roster_a" if team_letter == "A" else "roster_b"
     roster = st.session_state[roster_key]
@@ -398,6 +371,7 @@ def apply_pick(team_letter: str, ui_slot: str, player_name: str):
     if ui_slot == "util":
         used_slots = player_slots_used_in_round(player_name)
         rows = team_df[team_df["player"] == player_name].copy()
+        rows = rows[rows["slot"] != "util"]
         rows = rows[~rows["slot"].isin(used_slots)]
         if rows.empty:
             st.session_state.message = f"No remaining season available for {player_name} in UTIL."
@@ -447,6 +421,7 @@ def apply_pick(team_letter: str, ui_slot: str, player_name: str):
         advance_pick()
         st.rerun()
 
+
 if "roster_a" not in st.session_state:
     init_game_state()
 
@@ -493,6 +468,7 @@ team_df = round_team_df()
 on_clock = current_picker()
 
 colA, colB = st.columns(2, gap="medium")
+
 
 def render_team(letter: str, roster_key: str):
     roster = st.session_state[roster_key]
@@ -544,6 +520,7 @@ def render_team(letter: str, roster_key: str):
                     """,
                     unsafe_allow_html=True,
                 )
+
 
 with colA:
     render_team("A", "roster_a")
