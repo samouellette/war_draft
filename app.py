@@ -33,7 +33,7 @@ def rules_dialog():
     st.markdown(
         """
 ### 
--Two teams draft MLB players since 1980 from the randomly selected team above. Snake draft order.
+-Two teams draft MLB players from the randomly selected team above. Snake draft order.
 
 -The goal is to draft a player with the highest SINGLE SEASON WAR from that team.
 
