@@ -314,7 +314,7 @@ def options_for_slot(team_df: pd.DataFrame, ui_slot: str, roster: dict) -> pd.Da
         pool = pool[~pool["player"].isin(used_block)]
 
     pool = pool.dropna(subset=["war"])
-    best = pool.groupby("player", as_index=False)["war"].max()
+    best = pool.groupby("player", as_index=False)["war"].max()   
     best["slot"] = data_slot
     return best.sort_values("player", key=lambda s: s.str.lower()).reset_index(drop=True)
 
