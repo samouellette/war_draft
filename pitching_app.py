@@ -240,7 +240,8 @@ def options_for_slot(team_df: pd.DataFrame, roster: dict) -> pd.DataFrame:
 
     # one row per player, best WAR already in your CSV, but we max again just in case
     best = pool.groupby("player", as_index=False)["war"].max()
-    return best.sort_values("war", ascending=False)
+    return best.sort_values("player", key=lambda s: s.str.lower()).reset_index(drop=True)
+
 
 
 def apply_pick(team_letter: str, ui_slot: str, player_name: str):
